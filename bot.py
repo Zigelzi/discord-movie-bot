@@ -20,32 +20,18 @@ async def add_movie(ctx, url, service):
         movie_request = {
             'message_id': str(ctx.message.id),
             'name': '',
-            'requester': ctx.message.author.name,
-            'release_year': '',
             'service': service,
-            'url': url,
-            'votes': 0,
-            'watched': False
+            'suggested_by': ctx.message.author.name,            
+            'url': url
         }
+
+        # TODO: Remove these testing logs when ready
         print(f'User added movie with URL {url} in the channel {ctx.channel.name}')
         print(f'User added movie in service {service} in the channel {ctx.channel.name}')
         print(f'Message id: {ctx.message.id} by {ctx.message.author}')
         movie_request['name'] = get_movie_name(url)
-        # add_movie_to_sheet(movie_request)
-        await ctx.channel.send(f'Requested movie: {url} in service {service}')
-
-@bot.command(name='ping')
-async def ping(ctx):
-    if ctx.channel.name == 'bottihärö':
-        movie_request_json = {
-            "message_id":"111aaa",
-            "name":"Post Movie",
-            "service": "Netflix",
-            "suggested_by":"Dvh",
-            "url":"www.google.com"
-        }
-        r = requests.post('http://localhost:5000/movie_suggestions', data=movie_request_json)
-        await ctx.channel.send(r.text)
+        r = requests.post('http://api:5000/movie_suggestions', json=movie_request)
+        await ctx.channel.send(f'Added movie {movie_request["name"]} from service {movie_request["service"]} successfully!')
 
 @add_movie.error
 async def add_error(ctx, error):
